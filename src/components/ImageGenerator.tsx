@@ -81,31 +81,31 @@ export const ImageGenerator = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-card opacity-50" />
-        <CardHeader className="relative">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-primary">
-              <ImageIcon className="h-5 w-5 text-primary-foreground" />
+    <div className="space-y-8">
+      <Card className="border-border shadow-subtle">
+        <CardHeader className="pb-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+              <ImageIcon className="h-5 w-5" />
             </div>
-            <div>
-              <CardTitle>AI Image Generator</CardTitle>
-              <CardDescription>
-                Generate custom images from text descriptions
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-heading">AI Image Generator</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Create custom images from detailed text descriptions using advanced AI
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="relative">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Image Prompt</label>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Image Description</label>
               <Textarea
-                placeholder="Describe the image you want to generate... (e.g., 'A futuristic city skyline at sunset with flying cars')"
+                placeholder="Describe the image you want to generate in detail... (e.g., 'A professional office workspace with modern technology, natural lighting, clean lines')"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-24 transition-all duration-300 focus:shadow-glow resize-none"
+                className="min-h-24 transition-micro focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                rows={4}
                 disabled={loading}
               />
             </div>
@@ -113,7 +113,7 @@ export const ImageGenerator = () => {
             <Button
               type="submit"
               disabled={loading || !prompt.trim()}
-              className="w-full bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-glow"
+              className="w-full transition-micro hover:shadow-subtle"
             >
               {loading ? (
                 <>
@@ -132,45 +132,47 @@ export const ImageGenerator = () => {
       </Card>
 
       {result && (
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-card opacity-30" />
-          <CardHeader className="relative">
-            <CardTitle className="text-lg">Generated Image</CardTitle>
-            <CardDescription>"{result.prompt}"</CardDescription>
+        <Card className="border-border shadow-subtle">
+          <CardHeader className="pb-6">
+            <div className="space-y-2">
+              <CardTitle className="text-xl font-heading">Generated Image</CardTitle>
+              <CardDescription className="text-muted-foreground font-medium">
+                "{result.prompt}"
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent className="relative space-y-4">
+          <CardContent className="space-y-6">
             <div className="relative group">
               <img
                 src={result.image_base64}
-                alt="Generated image"
-                className="w-full h-auto rounded-lg border shadow-card transition-transform duration-300 group-hover:scale-[1.02]"
+                alt="AI generated image"
+                className="w-full h-auto rounded-lg border border-border shadow-moderate transition-micro group-hover:shadow-emphasis"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg" />
             </div>
             
             <div className="flex gap-3">
               <Button
                 onClick={downloadImage}
                 variant="outline"
-                className="flex-1 transition-all duration-300 hover:scale-105"
+                className="flex-1 transition-micro hover:bg-secondary"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Download
+                Download Image
               </Button>
               <Button
                 onClick={copyToClipboard}
                 variant="outline"
-                className="flex-1 transition-all duration-300 hover:scale-105"
+                className="flex-1 transition-micro hover:bg-secondary"
               >
                 <Copy className="mr-2 h-4 w-4" />
                 Copy Base64
               </Button>
             </div>
 
-            <div className="mt-4">
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Base64 Output</label>
-              <div className="p-3 rounded-lg bg-muted/30 border max-h-32 overflow-y-auto">
-                <code className="text-xs font-mono break-all">{result.image_base64}</code>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-3 block">Base64 Encoded Output</label>
+              <div className="p-4 rounded-lg bg-secondary border border-border max-h-32 overflow-y-auto">
+                <code className="text-xs font-mono text-secondary-foreground break-all">{result.image_base64}</code>
               </div>
             </div>
           </CardContent>

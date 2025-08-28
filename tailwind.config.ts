@@ -51,35 +51,47 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			fontFamily: {
+				'heading': ['var(--font-heading)'],
+				'body': ['var(--font-body)'],
+				'sans': ['Inter', 'sans-serif'],
+				'serif': ['IBM Plex Serif', 'serif']
+			},
+			fontSize: {
+				'xs': ['0.75rem', { lineHeight: '1.5' }],
+				'sm': ['0.875rem', { lineHeight: '1.5' }],
+				'base': ['1rem', { lineHeight: '1.6' }],
+				'lg': ['1.125rem', { lineHeight: '1.6' }],
+				'xl': ['1.25rem', { lineHeight: '1.5' }],
+				'2xl': ['1.5rem', { lineHeight: '1.4' }],
+				'3xl': ['1.875rem', { lineHeight: '1.3' }],
+				'4xl': ['2.25rem', { lineHeight: '1.2' }],
+				'5xl': ['3rem', { lineHeight: '1.1' }],
+				'6xl': ['3.75rem', { lineHeight: '1.1' }]
+			},
+			spacing: {
+				'xs': 'var(--spacing-xs)',
+				'sm': 'var(--spacing-sm)',
+				'md': 'var(--spacing-md)',
+				'lg': 'var(--spacing-lg)',
+				'xl': 'var(--spacing-xl)',
+				'2xl': 'var(--spacing-2xl)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-secondary': 'var(--gradient-secondary)',
-				'gradient-card': 'var(--gradient-card)',
-			},
 			boxShadow: {
-				'glow': 'var(--shadow-glow)',
-				'card': 'var(--shadow-card)',
+				'subtle': 'var(--shadow-subtle)',
+				'moderate': 'var(--shadow-moderate)',
+				'emphasis': 'var(--shadow-emphasis)'
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)',
-				'bounce': 'var(--transition-bounce)',
+				'micro': 'var(--transition-micro)'
 			},
 			keyframes: {
 				'accordion-down': {

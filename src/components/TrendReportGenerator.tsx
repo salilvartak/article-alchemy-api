@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, BarChart3, Plus, X } from 'lucide-react';
+import { Loader2, BarChart3, Plus, X, Download, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Article {
   title: string;
   url: string;
+  summary: string;
 }
 
 interface TrendReportResult {
@@ -18,22 +19,25 @@ interface TrendReportResult {
 
 export const TrendReportGenerator = () => {
   const [category, setCategory] = useState('');
-  const [articles, setArticles] = useState<Article[]>([{ title: '', url: '' }]);
+  const [articles, setArticles] = useState<Article[]>([
+    { title: '', url: '', summary: '' },
+    { title: '', url: '', summary: '' }
+  ]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<TrendReportResult | null>(null);
   const { toast } = useToast();
 
   const addArticle = () => {
-    setArticles([...articles, { title: '', url: '' }]);
+    setArticles([...articles, { title: '', url: '', summary: '' }]);
   };
 
   const removeArticle = (index: number) => {
-    if (articles.length > 1) {
+    if (articles.length > 2) {
       setArticles(articles.filter((_, i) => i !== index));
     }
   };
 
-  const updateArticle = (index: number, field: 'title' | 'url', value: string) => {
+  const updateArticle = (index: number, field: keyof Article, value: string) => {
     const updated = articles.map((article, i) => 
       i === index ? { ...article, [field]: value } : article
     );
@@ -42,7 +46,7 @@ export const TrendReportGenerator = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category.trim() || articles.some(a => !a.title.trim() || !a.url.trim())) {
+    if (!category.trim() || articles.some(a => !a.title.trim() || !a.url.trim() || !a.summary.trim())) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields before generating the report.",
@@ -60,52 +64,86 @@ export const TrendReportGenerator = () => {
       // Mock response
       const mockResult: TrendReportResult = {
         category,
-        report: `# ${category} Trend Report
+        report: `# ${category} Industry Trend Report
 
 ## Executive Summary
-Based on the analysis of ${articles.length} articles in the ${category} sector, several key trends are emerging that will shape the industry landscape in the coming months.
 
-## Key Findings
+Based on comprehensive analysis of ${articles.length} industry articles, this report identifies emerging trends and strategic opportunities in the ${category} sector. Our findings reveal significant shifts in market dynamics, technology adoption, and consumer behavior patterns.
 
-### 1. Market Evolution
-The ${category} market is experiencing unprecedented growth, with innovation driving significant changes in consumer behavior and industry standards.
+## Key Market Drivers
 
-### 2. Technology Integration
-Artificial intelligence and automation are becoming central themes, with companies increasingly adopting smart technologies to enhance efficiency and user experience.
+### Digital Transformation Acceleration
+The ${category} industry is experiencing unprecedented digital transformation, with organizations investing heavily in technology infrastructure and digital capabilities to remain competitive.
 
-### 3. Sustainability Focus
-Environmental consciousness is reshaping product development and corporate strategies across the ${category} sector.
+### Consumer-Centric Innovation
+Companies are shifting focus toward customer experience and personalization, leveraging data analytics to deliver targeted solutions and services.
 
-## Emerging Trends
+### Sustainability Integration
+Environmental consciousness is becoming a core business driver, influencing product development, supply chain decisions, and corporate strategy across the ${category} sector.
 
-- **Digital Transformation**: Companies are accelerating their digital initiatives
-- **Consumer-Centric Approach**: User experience is becoming the primary differentiator
-- **Data-Driven Decisions**: Analytics and insights are driving strategic planning
-- **Collaborative Innovation**: Cross-industry partnerships are fostering breakthrough solutions
+## Emerging Trends Analysis
 
-## Market Impact Analysis
-The convergence of these trends suggests a fundamental shift in how ${category} companies operate and compete. Organizations that adapt quickly to these changes are positioned for long-term success.
+**1. Technology Integration & Automation**
+- Artificial intelligence and machine learning adoption increasing by 40%
+- Process automation reducing operational costs while improving efficiency
+- Cloud-first strategies enabling scalable business operations
 
-## Recommendations
-1. Invest in emerging technologies
-2. Prioritize sustainability initiatives  
-3. Enhance customer experience platforms
-4. Develop agile business models
-5. Foster innovation partnerships
+**2. Market Consolidation & Partnerships**
+- Strategic mergers and acquisitions reshaping competitive landscape
+- Cross-industry collaborations fostering innovation and market expansion
+- Platform-based business models gaining market traction
+
+**3. Regulatory Evolution & Compliance**
+- Enhanced regulatory frameworks driving compliance investments
+- Data privacy and security becoming competitive differentiators
+- Industry standards evolving to address new technological capabilities
+
+## Strategic Recommendations
+
+### Short-term Actions (3-6 months)
+1. Assess current digital capabilities and identify transformation gaps
+2. Invest in employee training and change management programs
+3. Establish partnerships with technology providers and industry leaders
+4. Implement data governance and security frameworks
+
+### Medium-term Initiatives (6-18 months)
+1. Develop comprehensive sustainability strategies and reporting mechanisms
+2. Launch pilot programs for emerging technologies and business models
+3. Enhance customer experience through personalization and digital channels
+4. Build strategic partnerships for market expansion and innovation
+
+### Long-term Vision (18+ months)
+1. Position organization as industry leader in sustainable business practices
+2. Create platform-based business models for enhanced customer engagement
+3. Develop proprietary technologies and intellectual property assets
+4. Establish global presence through strategic acquisitions and partnerships
+
+## Market Impact Forecast
+
+The convergence of these trends indicates a fundamental transformation of the ${category} industry over the next 3-5 years. Organizations that proactively adapt to these changes will establish competitive advantages and capture emerging market opportunities.
+
+**Expected Growth Areas:**
+- Digital services and solutions: 35-45% growth
+- Sustainable products and services: 25-35% growth  
+- Data-driven insights and analytics: 40-50% growth
+- Automation and AI technologies: 30-40% growth
 
 ## Conclusion
-The ${category} industry stands at an inflection point. Companies that embrace these trends will lead the next wave of innovation and market growth.`
+
+The ${category} industry stands at a critical inflection point. Success will depend on organizations' ability to embrace digital transformation, prioritize sustainability, and maintain customer-centric focus while navigating regulatory changes and competitive pressures.
+
+Companies that invest in these strategic areas now will be positioned to lead industry evolution and capture disproportionate value creation opportunities in the transformed marketplace.`
       };
       
       setResult(mockResult);
       toast({
-        title: "Trend report generated!",
-        description: `Analysis complete for ${category} category.`
+        title: "Trend report generated successfully!",
+        description: `Comprehensive analysis complete for ${category} category.`
       });
     } catch (error) {
       toast({
         title: "Generation failed",
-        description: "Please try again.",
+        description: "Please try again with complete article information.",
         variant: "destructive"
       });
     } finally {
@@ -113,94 +151,141 @@ The ${category} industry stands at an inflection point. Companies that embrace t
     }
   };
 
+  const downloadReport = () => {
+    if (!result) return;
+    
+    const blob = new Blob([result.report], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${result.category}-trend-report-${Date.now()}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Download started",
+      description: "Trend report is being downloaded as markdown file."
+    });
+  };
+
+  const copyReport = async () => {
+    if (!result) return;
+    
+    try {
+      await navigator.clipboard.writeText(result.report);
+      toast({
+        title: "Copied to clipboard",
+        description: "Trend report has been copied to your clipboard."
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy report to clipboard.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-card opacity-50" />
-        <CardHeader className="relative">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-primary">
-              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+    <div className="space-y-8">
+      <Card className="border-border shadow-subtle">
+        <CardHeader className="pb-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+              <BarChart3 className="h-5 w-5" />
             </div>
-            <div>
-              <CardTitle>Trend Report Generator</CardTitle>
-              <CardDescription>
-                Synthesize multiple articles to generate comprehensive trend analysis
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-heading">Trend Report Generator</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Generate comprehensive trend analysis from multiple articles and data sources
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="relative">
+        <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Category</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Analysis Category</label>
               <Input
-                placeholder="e.g., Technology, Finance, Healthcare"
+                placeholder="e.g., Technology Trends, Market Analysis, Industry Insights"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="transition-all duration-300 focus:shadow-glow"
+                className="transition-micro focus:ring-2 focus:ring-primary focus:border-primary"
                 disabled={loading}
+                required
               />
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Articles</label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addArticle}
-                  disabled={loading}
-                  className="transition-all duration-300 hover:scale-105"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Article
-                </Button>
-              </div>
-              
+              <label className="text-sm font-medium text-foreground">Source Articles</label>
               {articles.map((article, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 rounded-lg bg-muted/30 border">
-                  <Input
-                    placeholder="Article title"
-                    value={article.title}
-                    onChange={(e) => updateArticle(index, 'title', e.target.value)}
-                    disabled={loading}
-                  />
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Article URL"
-                      value={article.url}
-                      onChange={(e) => updateArticle(index, 'url', e.target.value)}
-                      disabled={loading}
-                      className="flex-1"
-                    />
-                    {articles.length > 1 && (
+                <Card key={index} className="bg-secondary border-border">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <Input
+                          placeholder="Article title"
+                          value={article.title}
+                          onChange={(e) => updateArticle(index, 'title', e.target.value)}
+                          className="transition-micro"
+                          disabled={loading}
+                          required
+                        />
+                        <Input
+                          placeholder="https://example.com/article"
+                          value={article.url}
+                          onChange={(e) => updateArticle(index, 'url', e.target.value)}
+                          className="transition-micro"
+                          disabled={loading}
+                          required
+                        />
+                      </div>
+                      <Textarea
+                        placeholder="Key insights or summary from this article..."
+                        value={article.summary}
+                        onChange={(e) => updateArticle(index, 'summary', e.target.value)}
+                        className="transition-micro resize-none"
+                        rows={3}
+                        disabled={loading}
+                        required
+                      />
                       <Button
                         type="button"
+                        onClick={() => removeArticle(index)}
                         variant="outline"
                         size="sm"
-                        onClick={() => removeArticle(index)}
-                        disabled={loading}
-                        className="px-2"
+                        className="text-destructive hover:text-destructive-foreground hover:bg-destructive transition-micro"
+                        disabled={loading || articles.length <= 2}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 mr-1" />
+                        Remove Article
                       </Button>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
-            </div>
 
+              <Button
+                type="button"
+                onClick={addArticle}
+                variant="outline"
+                className="w-full transition-micro hover:bg-secondary"
+                disabled={loading}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Another Article
+              </Button>
+            </div>
+            
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-glow"
+              disabled={loading || !category || articles.some(a => !a.title || !a.url || !a.summary)}
+              className="w-full transition-micro hover:shadow-subtle"
             >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Report...
+                  Generating Trend Report...
                 </>
               ) : (
                 <>
@@ -214,16 +299,39 @@ The ${category} industry stands at an inflection point. Companies that embrace t
       </Card>
 
       {result && (
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-card opacity-30" />
-          <CardHeader className="relative">
-            <CardTitle>{result.category} Trend Report</CardTitle>
+        <Card className="border-border shadow-subtle">
+          <CardHeader className="pb-6">
+            <div className="space-y-2">
+              <CardTitle className="text-xl font-heading">Trend Report: {result.category}</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Comprehensive analysis based on {articles.length} source articles
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent className="relative">
-            <div className="bg-muted/30 rounded-lg p-6 border">
-              <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono">
+          <CardContent className="space-y-6">
+            <div className="bg-secondary p-6 rounded-lg border border-border">
+              <div className="prose prose-sm max-w-none text-secondary-foreground leading-relaxed whitespace-pre-wrap">
                 {result.report}
-              </pre>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 pt-2">
+              <Button
+                onClick={downloadReport}
+                variant="outline"
+                className="transition-micro hover:bg-secondary flex-1"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download Report
+              </Button>
+              <Button
+                onClick={copyReport}
+                variant="outline"
+                className="transition-micro hover:bg-secondary flex-1"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copy to Clipboard
+              </Button>
             </div>
           </CardContent>
         </Card>

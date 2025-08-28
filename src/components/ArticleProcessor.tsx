@@ -35,36 +35,39 @@ export const ArticleProcessor = () => {
       // Simulate API call - replace with actual endpoint
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Mock response
+      // Mock response with corrected takeaways property name
       const mockResult: ArticleResult = {
         url,
         title: "Revolutionary AI Breakthrough Changes Everything",
-        content: "In a groundbreaking development that could reshape the future of artificial intelligence, researchers have announced a new paradigm that promises to revolutionize how we interact with technology. This breakthrough represents years of research and innovation...",
+        content: "In a groundbreaking development that could reshape the future of artificial intelligence, researchers have announced a new paradigm that promises to revolutionize how we interact with technology. This breakthrough represents years of research and innovation, combining advanced machine learning techniques with novel computational approaches to create systems that can understand and respond to human needs with unprecedented accuracy and efficiency.",
         images: [
           "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400",
-          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400"
+          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400",
+          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400"
         ],
         categories: {
           "Technology": 0.95,
           "AI & Machine Learning": 0.87,
-          "Innovation": 0.72
+          "Innovation": 0.72,
+          "Research": 0.68
         },
         ai_content: {
-          summary: "A major AI breakthrough has been announced that could transform technology interaction paradigms and reshape future development.",
+          summary: "A major AI breakthrough has been announced that could transform technology interaction paradigms and reshape future development across multiple industries.",
           key_takeaways: [
-            "Revolutionary AI paradigm announced",
-            "Years of research culminated",
-            "Future technology interactions redefined",
-            "Industry-wide implications expected"
+            "Revolutionary AI paradigm combining multiple advanced techniques",
+            "Unprecedented accuracy in human-computer interaction achieved",
+            "Years of interdisciplinary research culminated in breakthrough",
+            "Industry-wide implications for future technology development",
+            "Novel computational approaches enabling new possibilities"
           ],
-          social_snippet: "🚀 BREAKING: Revolutionary AI breakthrough announced! This could change everything about how we interact with technology. #AI #Innovation #TechNews"
+          social_snippet: "🚀 BREAKING: Revolutionary AI breakthrough announced! This paradigm shift could transform how we interact with technology across all industries. The future is here! #AI #Innovation #TechNews #Breakthrough"
         }
       };
       
       setResult(mockResult);
       toast({
         title: "Article processed successfully!",
-        description: "Content extracted and analyzed."
+        description: "Content extracted and analyzed with AI insights."
       });
     } catch (error) {
       toast({
@@ -78,144 +81,157 @@ export const ArticleProcessor = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-card opacity-50" />
-        <CardHeader className="relative">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-primary">
-              <FileText className="h-5 w-5 text-primary-foreground" />
+    <div className="space-y-8">
+      <Card className="border-border shadow-subtle">
+        <CardHeader className="pb-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+              <FileText className="h-5 w-5" />
             </div>
-            <div>
-              <CardTitle>Article Content Processor</CardTitle>
-              <CardDescription>
-                Extract, analyze, and generate AI insights from any article
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-heading">Article Content Processor</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Extract and analyze content from web articles with AI-powered insights
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="relative">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-2">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Article URL</label>
               <Input
                 type="url"
-                placeholder="Enter article URL (e.g., https://example.com/article)"
+                placeholder="https://example.com/article-to-analyze"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="flex-1 transition-all duration-300 focus:shadow-glow"
+                className="transition-micro focus:ring-2 focus:ring-primary focus:border-primary"
                 disabled={loading}
+                required
               />
-              <Button 
-                type="submit" 
-                disabled={loading || !url.trim()}
-                className="bg-gradient-primary hover:scale-105 transition-all duration-300 shadow-glow"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing
-                  </>
-                ) : (
-                  <>
-                    <Link className="mr-2 h-4 w-4" />
-                    Process Article
-                  </>
-                )}
-              </Button>
             </div>
+            
+            <Button
+              type="submit"
+              disabled={loading || !url}
+              className="w-full transition-micro hover:shadow-subtle"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing Article...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Process Article
+                </>
+              )}
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {result && (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-card opacity-30" />
-            <CardHeader className="relative">
-              <CardTitle className="text-lg">Article Details</CardTitle>
-            </CardHeader>
-            <CardContent className="relative space-y-4">
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-1">Title</h3>
-                <p className="font-medium">{result.title}</p>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-2">Categories</h3>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(result.categories).map(([category, confidence]) => (
-                    <Badge 
-                      key={category} 
-                      variant="secondary"
-                      className="bg-gradient-primary text-primary-foreground"
-                    >
-                      {category} ({Math.round(confidence * 100)}%)
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-2">Content Preview</h3>
-                <p className="text-sm line-clamp-4">{result.content}</p>
-              </div>
-
-              {result.images.length > 0 && (
+        <Card className="border-border shadow-subtle">
+          <CardHeader className="pb-6">
+            <div className="space-y-2">
+              <CardTitle className="text-xl font-heading">Processing Results</CardTitle>
+              <CardDescription>
+                <a 
+                  href={result.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-primary hover:underline transition-micro font-medium"
+                >
+                  {result.url}
+                </a>
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Images Found</h3>
-                  <div className="flex gap-2 overflow-x-auto">
-                    {result.images.slice(0, 3).map((image, i) => (
-                      <div key={i} className="relative flex-shrink-0">
-                        <img 
-                          src={image} 
-                          alt={`Article image ${i + 1}`}
-                          className="w-16 h-16 rounded-lg object-cover border border-border"
-                        />
-                      </div>
-                    ))}
-                    {result.images.length > 3 && (
-                      <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-muted text-muted-foreground text-xs">
-                        +{result.images.length - 3}
-                      </div>
-                    )}
+                  <h3 className="font-heading font-medium mb-3 text-foreground">Article Title</h3>
+                  <div className="bg-secondary p-4 rounded-lg border border-border">
+                    <p className="text-sm font-medium">{result.title}</p>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-card opacity-30" />
-            <CardHeader className="relative">
-              <CardTitle className="text-lg">AI Analysis</CardTitle>
-            </CardHeader>
-            <CardContent className="relative space-y-4">
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-1">Summary</h3>
-                <p className="text-sm">{result.ai_content.summary}</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-2">Key Takeaways</h3>
-                <ul className="space-y-1">
-                  {result.ai_content.key_takeaways.map((takeaway, i) => (
-                    <li key={i} className="text-sm flex items-start gap-2">
-                      <TrendingUp className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
-                      {takeaway}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-1">Social Media Snippet</h3>
-                <div className="p-3 rounded-lg bg-muted/50 border">
-                  <p className="text-sm">{result.ai_content.social_snippet}</p>
+                
+                <div>
+                  <h3 className="font-heading font-medium mb-3 text-foreground">Content Preview</h3>
+                  <div className="bg-secondary p-4 rounded-lg border border-border max-h-32 overflow-y-auto">
+                    <p className="text-sm leading-relaxed text-secondary-foreground">
+                      {result.content.substring(0, 300)}...
+                    </p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-heading font-medium mb-3 text-foreground">Content Categories</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(result.categories).map(([category, confidence]) => (
+                      <Badge key={category} variant="secondary" className="transition-micro hover:bg-primary hover:text-primary-foreground">
+                        {category}: {Math.round(confidence as number * 100)}%
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-heading font-medium mb-3 text-foreground">AI-Generated Summary</h3>
+                  <div className="bg-secondary p-4 rounded-lg border border-border">
+                    <p className="text-sm leading-relaxed text-secondary-foreground">{result.ai_content.summary}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-heading font-medium mb-3 text-foreground">Key Insights</h3>
+                  <div className="space-y-2">
+                    {result.ai_content.key_takeaways.map((takeaway: string, index: number) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                        <p className="text-sm leading-relaxed">{takeaway}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-heading font-medium mb-3 text-foreground">Social Media Preview</h3>
+                  <div className="bg-secondary p-4 rounded-lg border border-border">
+                    <p className="text-sm text-secondary-foreground">{result.ai_content.social_snippet}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {result.images.length > 0 && (
+              <div>
+                <h3 className="font-heading font-medium mb-4 text-foreground">
+                  Article Images ({result.images.length})
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {result.images.slice(0, 8).map((image: string, index: number) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Article image ${index + 1}`}
+                        className="w-full h-20 object-cover rounded-lg border border-border transition-micro group-hover:shadow-subtle"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );
