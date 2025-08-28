@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Link, FileText, Image, TrendingUp } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ArticleResult {
@@ -23,48 +23,39 @@ export const ArticleProcessor = () => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ArticleResult | null>(null);
+  const [apiPath, setApiPath] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetch('/openapi.json')
+      .then((response) => response.json())
+      .then((data) => {
+        setApiPath(Object.keys(data.paths).find(path => path.includes('process-article')));
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) return;
+    if (!url.trim() || !apiPath) return;
 
     setLoading(true);
-    
+    setResult(null);
+
     try {
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Mock response with corrected takeaways property name
-      const mockResult: ArticleResult = {
-        url,
-        title: "Revolutionary AI Breakthrough Changes Everything",
-        content: "In a groundbreaking development that could reshape the future of artificial intelligence, researchers have announced a new paradigm that promises to revolutionize how we interact with technology. This breakthrough represents years of research and innovation, combining advanced machine learning techniques with novel computational approaches to create systems that can understand and respond to human needs with unprecedented accuracy and efficiency.",
-        images: [
-          "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400",
-          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400",
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400"
-        ],
-        categories: {
-          "Technology": 0.95,
-          "AI & Machine Learning": 0.87,
-          "Innovation": 0.72,
-          "Research": 0.68
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        ai_content: {
-          summary: "A major AI breakthrough has been announced that could transform technology interaction paradigms and reshape future development across multiple industries.",
-          key_takeaways: [
-            "Revolutionary AI paradigm combining multiple advanced techniques",
-            "Unprecedented accuracy in human-computer interaction achieved",
-            "Years of interdisciplinary research culminated in breakthrough",
-            "Industry-wide implications for future technology development",
-            "Novel computational approaches enabling new possibilities"
-          ],
-          social_snippet: "🚀 BREAKING: Revolutionary AI breakthrough announced! This paradigm shift could transform how we interact with technology across all industries. The future is here! #AI #Innovation #TechNews #Breakthrough"
-        }
-      };
-      
-      setResult(mockResult);
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process article');
+      }
+
+      const data: ArticleResult = await response.json();
+      setResult(data);
       toast({
         title: "Article processed successfully!",
         description: "Content extracted and analyzed with AI insights."
@@ -191,7 +182,7 @@ export const ArticleProcessor = () => {
                 <div>
                   <h3 className="font-heading font-medium mb-3 text-foreground">Key Insights</h3>
                   <div className="space-y-2">
-                    {result.ai_content.key_takeaways.map((takeaway: string, index: number) => (
+                    {Array.isArray(result.ai_content.key_takeaways) && result.ai_content.key_takeaways.map((takeaway: string, index: number) => (
                       <div key={index} className="flex items-start gap-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
                         <p className="text-sm leading-relaxed">{takeaway}</p>

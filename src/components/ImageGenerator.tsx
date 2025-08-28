@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,25 +14,39 @@ export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ImageResult | null>(null);
+  const [apiPath, setApiPath] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetch('/openapi.json')
+      .then((response) => response.json())
+      .then((data) => {
+        setApiPath(Object.keys(data.paths).find(path => path.includes('generate-image')));
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || !apiPath) return;
 
     setLoading(true);
+    setResult(null);
     
     try {
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      
-      // Mock base64 image (placeholder)
-      const mockResult: ImageResult = {
-        prompt,
-        image_base64: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjMTExODI3Ii8+CjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iNjAiIGZpbGw9IiMzQjgyRjYiLz4KPHN2ZyB4PSIyMDAiIHk9IjE5NiIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZmZmIiB2aWV3Qm94PSIwIDAgMjQgMjQiPgo8cGF0aCBkPSJNNSAzYTIgMiAwIDAgMC0yIDJ2MTRhMiAyIDAgMCAwIDIgMmgxNGEyIDIgMCAwIDAgMi0yVjVhMiAyIDAgMCAwLTItMkg1em0yIDJ2LjAxTDEzIDEybDMgNGgtMTJWNXptMCA2IDUtNSAyIDJMOSAxMnoiLz4KPC9zdmc+Cjx0ZXh0IHg9IjI1NiIgeT0iMzUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOUM4RTliIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTRweCIgZm9udC13ZWlnaHQ9IjUwMCI+R2VuZXJhdGVkIEltYWdlPC90ZXh0Pgo8dGV4dCB4PSIyNTYiIHk9IjM3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzZCNzI4MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEycHgiPkJhc2VkIG9uIHlvdXIgcHJvbXB0PC90ZXh0Pgo8L3N2Zz4='
-      };
-      
-      setResult(mockResult);
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+
+      const data: ImageResult = await response.json();
+      setResult(data);
       toast({
         title: "Image generated successfully!",
         description: "Your AI-generated image is ready."
@@ -52,7 +66,7 @@ export const ImageGenerator = () => {
     if (!result) return;
     
     const link = document.createElement('a');
-    link.href = result.image_base64;
+    link.href = `data:image/png;base64,${result.image_base64}`;
     link.download = `generated-image-${Date.now()}.png`;
     link.click();
     
@@ -144,7 +158,7 @@ export const ImageGenerator = () => {
           <CardContent className="space-y-6">
             <div className="relative group">
               <img
-                src={result.image_base64}
+                src={`data:image/png;base64,${result.image_base64}`}
                 alt="AI generated image"
                 className="w-full h-auto rounded-lg border border-border shadow-moderate transition-micro group-hover:shadow-emphasis"
               />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +25,16 @@ export const TrendReportGenerator = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<TrendReportResult | null>(null);
+  const [apiPath, setApiPath] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetch('/openapi.json')
+      .then((response) => response.json())
+      .then((data) => {
+        setApiPath(Object.keys(data.paths).find(path => path.includes('generate-trend-report')));
+      });
+  }, []);
 
   const addArticle = () => {
     setArticles([...articles, { title: '', url: '', summary: '' }]);
@@ -38,7 +47,7 @@ export const TrendReportGenerator = () => {
   };
 
   const updateArticle = (index: number, field: keyof Article, value: string) => {
-    const updated = articles.map((article, i) => 
+    const updated = articles.map((article, i) =>
       i === index ? { ...article, [field]: value } : article
     );
     setArticles(updated);
@@ -46,7 +55,7 @@ export const TrendReportGenerator = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category.trim() || articles.some(a => !a.title.trim() || !a.url.trim() || !a.summary.trim())) {
+    if (!category.trim() || articles.some(a => !a.title.trim() || !a.url.trim() || !a.summary.trim()) || !apiPath) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields before generating the report.",
@@ -56,86 +65,23 @@ export const TrendReportGenerator = () => {
     }
 
     setLoading(true);
-    
+    setResult(null);
+
     try {
-      // Simulate API call - replace with actual endpoint
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      // Mock response
-      const mockResult: TrendReportResult = {
-        category,
-        report: `# ${category} Industry Trend Report
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ category, articles }),
+      });
 
-## Executive Summary
+      if (!response.ok) {
+        throw new Error('Failed to generate trend report');
+      }
 
-Based on comprehensive analysis of ${articles.length} industry articles, this report identifies emerging trends and strategic opportunities in the ${category} sector. Our findings reveal significant shifts in market dynamics, technology adoption, and consumer behavior patterns.
-
-## Key Market Drivers
-
-### Digital Transformation Acceleration
-The ${category} industry is experiencing unprecedented digital transformation, with organizations investing heavily in technology infrastructure and digital capabilities to remain competitive.
-
-### Consumer-Centric Innovation
-Companies are shifting focus toward customer experience and personalization, leveraging data analytics to deliver targeted solutions and services.
-
-### Sustainability Integration
-Environmental consciousness is becoming a core business driver, influencing product development, supply chain decisions, and corporate strategy across the ${category} sector.
-
-## Emerging Trends Analysis
-
-**1. Technology Integration & Automation**
-- Artificial intelligence and machine learning adoption increasing by 40%
-- Process automation reducing operational costs while improving efficiency
-- Cloud-first strategies enabling scalable business operations
-
-**2. Market Consolidation & Partnerships**
-- Strategic mergers and acquisitions reshaping competitive landscape
-- Cross-industry collaborations fostering innovation and market expansion
-- Platform-based business models gaining market traction
-
-**3. Regulatory Evolution & Compliance**
-- Enhanced regulatory frameworks driving compliance investments
-- Data privacy and security becoming competitive differentiators
-- Industry standards evolving to address new technological capabilities
-
-## Strategic Recommendations
-
-### Short-term Actions (3-6 months)
-1. Assess current digital capabilities and identify transformation gaps
-2. Invest in employee training and change management programs
-3. Establish partnerships with technology providers and industry leaders
-4. Implement data governance and security frameworks
-
-### Medium-term Initiatives (6-18 months)
-1. Develop comprehensive sustainability strategies and reporting mechanisms
-2. Launch pilot programs for emerging technologies and business models
-3. Enhance customer experience through personalization and digital channels
-4. Build strategic partnerships for market expansion and innovation
-
-### Long-term Vision (18+ months)
-1. Position organization as industry leader in sustainable business practices
-2. Create platform-based business models for enhanced customer engagement
-3. Develop proprietary technologies and intellectual property assets
-4. Establish global presence through strategic acquisitions and partnerships
-
-## Market Impact Forecast
-
-The convergence of these trends indicates a fundamental transformation of the ${category} industry over the next 3-5 years. Organizations that proactively adapt to these changes will establish competitive advantages and capture emerging market opportunities.
-
-**Expected Growth Areas:**
-- Digital services and solutions: 35-45% growth
-- Sustainable products and services: 25-35% growth  
-- Data-driven insights and analytics: 40-50% growth
-- Automation and AI technologies: 30-40% growth
-
-## Conclusion
-
-The ${category} industry stands at a critical inflection point. Success will depend on organizations' ability to embrace digital transformation, prioritize sustainability, and maintain customer-centric focus while navigating regulatory changes and competitive pressures.
-
-Companies that invest in these strategic areas now will be positioned to lead industry evolution and capture disproportionate value creation opportunities in the transformed marketplace.`
-      };
-      
-      setResult(mockResult);
+      const data: TrendReportResult = await response.json();
+      setResult(data);
       toast({
         title: "Trend report generated successfully!",
         description: `Comprehensive analysis complete for ${category} category.`
@@ -153,7 +99,7 @@ Companies that invest in these strategic areas now will be positioned to lead in
 
   const downloadReport = () => {
     if (!result) return;
-    
+
     const blob = new Blob([result.report], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -161,7 +107,7 @@ Companies that invest in these strategic areas now will be positioned to lead in
     link.download = `${result.category}-trend-report-${Date.now()}.md`;
     link.click();
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Download started",
       description: "Trend report is being downloaded as markdown file."
@@ -170,7 +116,7 @@ Companies that invest in these strategic areas now will be positioned to lead in
 
   const copyReport = async () => {
     if (!result) return;
-    
+
     try {
       await navigator.clipboard.writeText(result.report);
       toast({
